@@ -7,6 +7,45 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
         <lastBuildDate>Sat, 22 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://borisjacquot.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>La haute disponibilité</title>
+        <link>https://borisjacquot.github.io/p/la-haute-disponibilit%C3%A9/</link>
+        <pubDate>Sat, 22 May 2021 00:00:00 +0000</pubDate>
+        
+        <guid>https://borisjacquot.github.io/p/la-haute-disponibilit%C3%A9/</guid>
+        <description>&lt;img src="https://borisjacquot.github.io/p/la-haute-disponibilit%C3%A9/haute-disponibilite.jpg" alt="Featured image of post La haute disponibilité" /&gt;&lt;h1 id=&#34;la-haute-disponibilité&#34;&gt;La haute disponibilité&lt;/h1&gt;
+&lt;h2 id=&#34;intro&#34;&gt;Intro&lt;/h2&gt;
+&lt;p&gt;Le but d&amp;rsquo;une HA est de rendre un service disponible quand un serveur est surchargé. Dans notre cas nous prendrons l&amp;rsquo;exemple d&amp;rsquo;un site web static dans un premier temps.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;TODO: schéma&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Nous avons notre site qui tourne sur un serveur apache, jusque ici tout va bien. Admettons que le serveur soit surchargé, comment assurer la disponibilité du site ?&lt;/p&gt;
+&lt;p&gt;-&amp;gt; on va dans un premier temps multiplier le nombre de serveurs qui font tourner le site.&lt;/p&gt;
+&lt;p&gt;Mais comment faire quand tous les serveurs sont surchargés ?&lt;/p&gt;
+&lt;h2 id=&#34;les-load-balencers-lb&#34;&gt;Les load balencers (LB)&lt;/h2&gt;
+&lt;p&gt;Il existe plusieures techno de LB :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Apache&lt;/li&gt;
+&lt;li&gt;nginx&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;HAProxy&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;traefic&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;em&gt;A quoi ça sert ?&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Un LB va distribuer le traffic vers les serveurs. Si un serveur tombe en panne, il va le retirer de son &lt;em&gt;pool&lt;/em&gt; et l&amp;rsquo;accès au service sera toujours possible.&lt;/p&gt;
+&lt;p&gt;Cependant, un seul LB crée un &lt;strong&gt;SPOF&lt;/strong&gt; (point de défaillance unique), c&amp;rsquo;est à dire que si il tombe, tout tombe (comme DC3 lol). Pour éviter ceci, on a la possibilité de mettre plusieurs LB. Mais comment choisir quel LB il faut utiliser ?&lt;/p&gt;
+&lt;p&gt;-&amp;gt; On utilise le système de &lt;code&gt;Quorum&lt;/code&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;On va mettre en place un nombre impair de LB afin qu&amp;rsquo;il n&amp;rsquo;y ait pas de &lt;em&gt;&amp;ldquo;vote nul&amp;rdquo;&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;On va les mettre en place grâce à deux techno : &lt;code&gt;corosync&lt;/code&gt; et &lt;code&gt;pacemaker&lt;/code&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;em&gt;Corosync&lt;/em&gt; va créer un cluster où les LB discutent en paires. Un LB sera désigné comme étant le &lt;em&gt;maître&lt;/em&gt; et les autres des &lt;em&gt;esclaves&lt;/em&gt;. Si le maître vient à mourir, corosync va transmettre l&amp;rsquo;information aux autres LB et ces derniers vont élire un nouveau &lt;em&gt;maître&lt;/em&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;em&gt;Pacemaker&lt;/em&gt; partage la ressource (ici l&amp;rsquo;IP). La ressource doit toujours être sur le &lt;em&gt;maître&lt;/em&gt;. Quand le &lt;em&gt;maître&lt;/em&gt; décède, Pacemaker va informer Corosync qu&amp;rsquo;il n&amp;rsquo;est plus apte à être &lt;em&gt;maître&lt;/em&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
         <title>Les conteneurs</title>
         <link>https://borisjacquot.github.io/p/les-conteneurs/</link>
         <pubDate>Sat, 22 May 2021 00:00:00 +0000</pubDate>
