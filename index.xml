@@ -7,13 +7,66 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
         <lastBuildDate>Sat, 22 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://borisjacquot.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>My first post</title>
-        <link>https://borisjacquot.github.io/p/my-first-post/</link>
+        <title>Les conteneurs</title>
+        <link>https://borisjacquot.github.io/p/les-conteneurs/</link>
         <pubDate>Sat, 22 May 2021 00:00:00 +0000</pubDate>
         
-        <guid>https://borisjacquot.github.io/p/my-first-post/</guid>
-        <description>&lt;img src="https://borisjacquot.github.io/p/my-first-post/pexels-pixabay-356065.jpg" alt="Featured image of post My first post" /&gt;&lt;h1 id=&#34;jadore-tout-&#34;&gt;J&amp;rsquo;adore tout !&lt;/h1&gt;
-&lt;p&gt;Je ne sais pas trop quoi dire d&amp;rsquo;autre pour l&amp;rsquo;instant.&lt;/p&gt;
+        <guid>https://borisjacquot.github.io/p/les-conteneurs/</guid>
+        <description>&lt;img src="https://borisjacquot.github.io/p/les-conteneurs/conteneurs.jpg" alt="Featured image of post Les conteneurs" /&gt;&lt;h1 id=&#34;les-conteneurs&#34;&gt;Les conteneurs&lt;/h1&gt;
+&lt;h2 id=&#34;random-things&#34;&gt;Random things&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;ps&lt;/code&gt; et &lt;code&gt;pstree&lt;/code&gt; permettent de voir la liste des processus actifs sur la machine (package &lt;code&gt;procps&lt;/code&gt;).
+Au démarrage le processus &lt;code&gt;1&lt;/code&gt; sera toujours &lt;code&gt;/init&lt;/code&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Dans le cas d&amp;rsquo;une machine virtuelle, l&amp;rsquo;information va être traitée une première fois par la VM, puis est réinterprêtée par le noyau.
+(On peut skip ceci et gagner du temps avec &lt;code&gt;VT-x&lt;/code&gt;)&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Un conteneur =/= une VM&lt;/strong&gt;&lt;/p&gt;
+&lt;h2 id=&#34;les-namespaces&#34;&gt;Les Namespaces&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Processus&lt;/strong&gt; : Les prcessus dans le NS vont être isolés des autres. À l&amp;rsquo;intérieur du NS, le premier processus aura donc l&amp;rsquo;ID &lt;code&gt;1&lt;/code&gt; (cf /init). Du point de vue du noyau, ce processus aura un autre ID qui lui est propre. Il est impossible, à l&amp;rsquo;intérieur du NS, de voir les autres processus de la machine. Cependant, l&amp;rsquo;inverse est vrai. &lt;em&gt;(cf pstree dans chaque)&lt;/em&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Réseau&lt;/strong&gt; : On peut créer une interface virtuelle qui sera alors connectée (ou non) à une interface de la machine (via un bridge par exemple).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;User / group&lt;/strong&gt; : Les utilisateurs dans un NS peuvent avoir le même ID que ceux de la machine. Il peut donc y avoir des faille (par exemple : avoir l&amp;rsquo;ID 0 dans le NS donne les droits du l&amp;rsquo;ID 0 de la machine = root). Pour y remédier, on utilise &lt;em&gt;l&amp;rsquo;UID shifting&lt;/em&gt; =&amp;gt; càd on va dire que tous les UID seront +4000 (par exemple) par rapport à ceux de la machine, donc plus sécurisant.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;docker&#34;&gt;Docker&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Un ensemble de NS crée un conteneur. On le crée grâce à un &lt;code&gt;clone()&lt;/code&gt; &lt;em&gt;(fork ou thread)&lt;/em&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Docker va simplifier la création de conteneurs en s&amp;rsquo;occupant de créer tous les NS. On peut choisir ce qu&amp;rsquo;on met dedans grâce à une image.&lt;/p&gt;
+&lt;p&gt;Par exemple : pour un site web static qui tourne sous nginx, on va procéder de la sorte :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;On va créer un fichier &lt;code&gt;Dockerfile&lt;/code&gt; avec toutes les instructions pour installer le conteneur (comment build l&amp;rsquo;image). Dans notre cas on pourra écrire dedans :&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code&gt;# on dl l&#39;image que l&#39;on souhaite =&amp;gt; ici nginx qui tourne sur alpine (une distro avec le minimum légal pour que ce soit léger)
+FROM nginx:alpine
+
+# on lance des commandes pour le build
+RUN apt update &amp;amp;&amp;amp; apt install [...]
+
+# on copie notre index (par exemple)
+COPY ./docker/base/fpm/resources/index.html /usr/local/nginx/html
+
+# on copie notre script qui sera le proc 1 selon ce qu&#39;on veut
+COPY ./docker/base/fpm/resources/index.html /entrypoint
+
+# on défini un user pour exécuter les choses =&amp;gt; on donne peu de droits pour éviter les failles
+USER www-data
+
+# on choisi l&#39;espace de travail
+WORKDIR &amp;quot;/application&amp;quot;
+
+# on choisi notre point d&#39;entrée (donc le proc 0)
+ENTRYPOINT [&amp;quot;/entrypoint&amp;quot;]
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;
+&lt;li&gt;Ensuite on peut lancer :&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code&gt;$ docker build -t my-image:v0.1 .
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;em&gt;&lt;strong&gt;et hop!&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
 </description>
         </item>
         

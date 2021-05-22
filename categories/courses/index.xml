@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on Boris Jacquot</title>
-    <link>https://borisjacquot.github.io/post/</link>
-    <description>Recent content in Posts on Boris Jacquot</description>
+    <title>Courses on Boris Jacquot</title>
+    <link>https://borisjacquot.github.io/categories/courses/</link>
+    <description>Recent content in Courses on Boris Jacquot</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 22 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://borisjacquot.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 22 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://borisjacquot.github.io/categories/courses/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Les conteneurs</title>
       <link>https://borisjacquot.github.io/p/les-conteneurs/</link>
