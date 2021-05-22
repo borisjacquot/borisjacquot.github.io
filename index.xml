@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Boris Jacquot</title>
+        <link>https://borisjacquot.github.io/</link>
+        <description>Recent content on Boris Jacquot</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Sat, 22 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://borisjacquot.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>My first post</title>
+        <link>https://borisjacquot.github.io/p/my-first-post/</link>
+        <pubDate>Sat, 22 May 2021 00:00:00 +0000</pubDate>
+        
+        <guid>https://borisjacquot.github.io/p/my-first-post/</guid>
+        <description>&lt;img src="https://borisjacquot.github.io/p/my-first-post/pexels-pixabay-356065.jpg" alt="Featured image of post My first post" /&gt;&lt;h1 id=&#34;jadore-tout-&#34;&gt;J&amp;rsquo;adore tout !&lt;/h1&gt;
+&lt;p&gt;Je ne sais pas trop quoi dire d&amp;rsquo;autre pour l&amp;rsquo;instant.&lt;/p&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>
