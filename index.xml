@@ -43,6 +43,25 @@
 &lt;p&gt;&lt;em&gt;Pacemaker&lt;/em&gt; partage la ressource (ici l&amp;rsquo;IP). La ressource doit toujours être sur le &lt;em&gt;maître&lt;/em&gt;. Quand le &lt;em&gt;maître&lt;/em&gt; décède, Pacemaker va informer Corosync qu&amp;rsquo;il n&amp;rsquo;est plus apte à être &lt;em&gt;maître&lt;/em&gt;.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
+&lt;h3 id=&#34;passage-en-dynamique&#34;&gt;Passage en dynamique&lt;/h3&gt;
+&lt;p&gt;Si maintenant notre site passe en dynamique, avec une BDD par exemple, si nous mettons simplement une BDD liée à l&amp;rsquo;API, nous nous confrontons à un SPOF à ce niveau.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;schema&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;La solution est donc de mettre une fois de plus des LB, ainsi que plusieurs BDD.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;Les LB fonctionnent de la même manière.&lt;/li&gt;
+&lt;li&gt;Les BDD fonctionnent en maître-esclave + une n+1 ième sert de backup.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;backbone&#34;&gt;Backbone&lt;/h2&gt;
+&lt;p&gt;&lt;em&gt;todo + schema&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id=&#34;les-cdn&#34;&gt;Les CDN&lt;/h2&gt;
+&lt;p&gt;Pour être ncore plus efficace, on peut mettre un CDN avant les LB. Un CDN permet de mettre en cache des réponses à des requêtes pour éviter de passer par tout le processus vu précédemment afin de perdre le moins de temps possible.
+Une des technos utilisées est &lt;em&gt;Varnish&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;schema maybe&lt;/em&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Cloudflare&lt;/strong&gt; sert, entre autre, de cache.&lt;/p&gt;
+&lt;/blockquote&gt;
 </description>
         </item>
         <item>

@@ -266,6 +266,25 @@
 <p><em>Pacemaker</em> partage la ressource (ici l&rsquo;IP). La ressource doit toujours être sur le <em>maître</em>. Quand le <em>maître</em> décède, Pacemaker va informer Corosync qu&rsquo;il n&rsquo;est plus apte à être <em>maître</em>.</p>
 </li>
 </ul>
+<h3 id="passage-en-dynamique">Passage en dynamique</h3>
+<p>Si maintenant notre site passe en dynamique, avec une BDD par exemple, si nous mettons simplement une BDD liée à l&rsquo;API, nous nous confrontons à un SPOF à ce niveau.</p>
+<p><em>schema</em></p>
+<p>La solution est donc de mettre une fois de plus des LB, ainsi que plusieurs BDD.</p>
+<blockquote>
+<ul>
+<li>Les LB fonctionnent de la même manière.</li>
+<li>Les BDD fonctionnent en maître-esclave + une n+1 ième sert de backup.</li>
+</ul>
+</blockquote>
+<h2 id="backbone">Backbone</h2>
+<p><em>todo + schema</em></p>
+<h2 id="les-cdn">Les CDN</h2>
+<p>Pour être ncore plus efficace, on peut mettre un CDN avant les LB. Un CDN permet de mettre en cache des réponses à des requêtes pour éviter de passer par tout le processus vu précédemment afin de perdre le moins de temps possible.
+Une des technos utilisées est <em>Varnish</em></p>
+<p><em>schema maybe</em></p>
+<blockquote>
+<p><strong>Cloudflare</strong> sert, entre autre, de cache.</p>
+</blockquote>
 
 </section>
 
