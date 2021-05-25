@@ -33,7 +33,7 @@
 &lt;/blockquote&gt;
 &lt;p&gt;Admettons que nous ayons une image Docker simple contenant un nginx et un index.html. Nous voulons 3 serveurs qui tournent et afficher ces serveurs en tant que service dans Consul. Voici un exemple de configuration :&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;web.conf&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;web.nomad&lt;/strong&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre&gt;&lt;code class=&#34;language-nomad&#34; data-lang=&#34;nomad&#34;&gt;job &amp;quot;web&amp;quot; {
   datacenters = [&amp;quot;dc1&amp;quot;]

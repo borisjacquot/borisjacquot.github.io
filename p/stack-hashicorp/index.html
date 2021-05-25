@@ -252,7 +252,7 @@
 </blockquote>
 <p>Admettons que nous ayons une image Docker simple contenant un nginx et un index.html. Nous voulons 3 serveurs qui tournent et afficher ces serveurs en tant que service dans Consul. Voici un exemple de configuration :</p>
 <ul>
-<li><strong>web.conf</strong></li>
+<li><strong>web.nomad</strong></li>
 </ul>
 <pre><code class="language-nomad" data-lang="nomad">job &quot;web&quot; {
   datacenters = [&quot;dc1&quot;]
