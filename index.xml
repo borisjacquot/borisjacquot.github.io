@@ -21,7 +21,7 @@
 &lt;h2 id=&#34;consul&#34;&gt;Consul&lt;/h2&gt;
 &lt;p&gt;Consul est un soft permettant de faire du &lt;code&gt;service discovery&lt;/code&gt;. C&amp;rsquo;est à dire faire l&amp;rsquo;inventaire des services disponibles dans un cluster et récupérer les informations (up, down, &amp;hellip;). Il est également possible de set des &lt;code&gt;key values&lt;/code&gt; qui seront réutilisées par les services (comme Nomad par exemple).&lt;/p&gt;
 &lt;p&gt;Hello World d&amp;rsquo;un agent Consul (avec le client ayant l&amp;rsquo;ip de l&amp;rsquo;interface publique) :&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;consul agent -dev -client &#39;{{ GetInterfaceIP &amp;quot;ens18&amp;quot; }}&#39;
+&lt;pre&gt;&lt;code&gt;$ consul agent -dev -client &#39;{{ GetInterfaceIP &amp;quot;ens18&amp;quot; }}&#39;
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Lorsque l&amp;rsquo;on se rend sur &lt;code&gt;XX.XX.XX.XX:5500&lt;/code&gt;, on peut accéder au GUI de Consul :&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/uqPdmhZ.png&#34; alt=&#34;consul dashboard&#34;  /&gt;&lt;/p&gt;
 &lt;p&gt;Dans notre cas, on ne voit que consul comme service car on a encore rien configuré comme service.&lt;/p&gt;
@@ -219,7 +219,7 @@ resolvers consul
 	accepted_payload_size 8192
 	hold valid 5s
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;On reload notre HAProxy&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;systemctl reload haproxy
+&lt;pre&gt;&lt;code&gt;$ systemctl reload haproxy
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Si tout s&amp;rsquo;est bien passé on a sur &lt;code&gt;XX.XX.XX.XX:8889&lt;/code&gt; un de nos serveur nginx. On peut savoir lequel en regardant le response head (&lt;code&gt;F12&lt;/code&gt;). De plus, on peut avoir une vue de nos serveurs sur le lien des stats (XX.XX.XX.XX:1936 que nous avons config) :&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/WDpnZCl.png&#34; alt=&#34;haproxy dash&#34;  /&gt;&lt;/p&gt;
 &lt;p&gt;Et voilà notre petite infra est terminée !

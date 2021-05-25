@@ -9,7 +9,7 @@
 <meta property='og:description' content='Vue d&#39;ensemble de Consul et Nomad, et intégration de HAProxy'>
 <meta property='og:url' content='https://borisjacquot.github.io/p/stack-hashicorp/'>
 <meta property='og:site_name' content='Boris Jacquot'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='french' /><meta property='article:tag' content='hashicorp' /><meta property='article:tag' content='nomad' /><meta property='article:tag' content='consul' /><meta property='article:published_time' content='2021-05-25T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2021-05-25T00:00:00&#43;00:00'/><meta property='og:image' content='https://borisjacquot.github.io/p/stack-hashicorp/hashicorp.jpg' />
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='french' /><meta property='article:tag' content='hashicorp' /><meta property='article:tag' content='nomad' /><meta property='article:tag' content='consul' /><meta property='article:tag' content='network' /><meta property='article:published_time' content='2021-05-25T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2021-05-25T00:00:00&#43;00:00'/><meta property='og:image' content='https://borisjacquot.github.io/p/stack-hashicorp/hashicorp.jpg' />
 <meta name="twitter:site" content="@borisjacquot">
     <meta name="twitter:creator" content="@borisjacquot"><meta name="twitter:title" content="Stack HashiCorp">
 <meta name="twitter:description" content="Vue d&#39;ensemble de Consul et Nomad, et intégration de HAProxy"><meta name="twitter:card" content="summary_large_image">
@@ -240,7 +240,7 @@
 <h2 id="consul">Consul</h2>
 <p>Consul est un soft permettant de faire du <code>service discovery</code>. C&rsquo;est à dire faire l&rsquo;inventaire des services disponibles dans un cluster et récupérer les informations (up, down, &hellip;). Il est également possible de set des <code>key values</code> qui seront réutilisées par les services (comme Nomad par exemple).</p>
 <p>Hello World d&rsquo;un agent Consul (avec le client ayant l&rsquo;ip de l&rsquo;interface publique) :</p>
-<pre><code>consul agent -dev -client '{{ GetInterfaceIP &quot;ens18&quot; }}'
+<pre><code>$ consul agent -dev -client '{{ GetInterfaceIP &quot;ens18&quot; }}'
 </code></pre><p>Lorsque l&rsquo;on se rend sur <code>XX.XX.XX.XX:5500</code>, on peut accéder au GUI de Consul :</p>
 <p><img src="https://i.imgur.com/uqPdmhZ.png" alt="consul dashboard"  /></p>
 <p>Dans notre cas, on ne voit que consul comme service car on a encore rien configuré comme service.</p>
@@ -438,7 +438,7 @@ resolvers consul
 	accepted_payload_size 8192
 	hold valid 5s
 </code></pre><p>On reload notre HAProxy</p>
-<pre><code>systemctl reload haproxy
+<pre><code>$ systemctl reload haproxy
 </code></pre><p>Si tout s&rsquo;est bien passé on a sur <code>XX.XX.XX.XX:8889</code> un de nos serveur nginx. On peut savoir lequel en regardant le response head (<code>F12</code>). De plus, on peut avoir une vue de nos serveurs sur le lien des stats (XX.XX.XX.XX:1936 que nous avons config) :</p>
 <p><img src="https://i.imgur.com/WDpnZCl.png" alt="haproxy dash"  /></p>
 <p>Et voilà notre petite infra est terminée !
@@ -458,6 +458,8 @@ resolvers consul
             <a href="/tags/nomad/">nomad</a>
         
             <a href="/tags/consul/">consul</a>
+        
+            <a href="/tags/network/">network</a>
         
     </section>
 
