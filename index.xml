@@ -14,11 +14,216 @@
         <guid>https://borisjacquot.github.io/p/stack-hashicorp/</guid>
         <description>&lt;img src="https://borisjacquot.github.io/p/stack-hashicorp/hashicorp.jpg" alt="Featured image of post Stack HashiCorp" /&gt;&lt;h1 id=&#34;stack-hashicorp&#34;&gt;Stack HashiCorp&lt;/h1&gt;
 &lt;blockquote&gt;
-&lt;p&gt;HashiCorp est une entreprise de software base ç San Francisco en Californie. Cette entreprise propose une suite de logiciels open-source orientés service. Deux d&amp;rsquo;entre eux sont &lt;code&gt;Consul&lt;/code&gt; et &lt;code&gt;Nomad&lt;/code&gt;.
+&lt;p&gt;HashiCorp est une entreprise de software base à San Francisco en Californie. Cette entreprise propose une suite de logiciels open-source orientés service. Deux d&amp;rsquo;entre eux sont &lt;code&gt;Consul&lt;/code&gt; et &lt;code&gt;Nomad&lt;/code&gt;.
 &lt;a class=&#34;link&#34; href=&#34;https://www.hashicorp.com/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;&amp;raquo; plus d&amp;rsquo;info&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h1 id=&#34;consul&#34;&gt;Consul&lt;/h1&gt;
+&lt;h2 id=&#34;consul&#34;&gt;Consul&lt;/h2&gt;
+&lt;p&gt;Consul est un soft permettant de faire du &lt;code&gt;service discovery&lt;/code&gt;. C&amp;rsquo;est à dire faire l&amp;rsquo;inventaire des services disponibles dans un cluster et récupérer les informations (up, down, &amp;hellip;). Il est également possible de set des &lt;code&gt;key values&lt;/code&gt; qui seront réutilisées par les services (comme Nomad par exemple).&lt;/p&gt;
+&lt;p&gt;Hello World d&amp;rsquo;un agent Consul (avec le client ayant l&amp;rsquo;ip de l&amp;rsquo;interface publique) :&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;consul agent -dev -client &#39;{{ GetInterfaceIP &amp;quot;ens18&amp;quot; }}&#39;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Lorsque l&amp;rsquo;on se rend sur &lt;code&gt;XX.XX.XX.XX:5500&lt;/code&gt;, on peut accéder au GUI de Consul :&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/uqPdmhZ.png&#34; alt=&#34;consul dashboard&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;Dans notre cas, on ne voit que consul comme service car on a encore rien configuré comme service.&lt;/p&gt;
+&lt;p&gt;Pour faire de la HA (cf cours haute disponibilité), on met plusieurs serveurs Consul (on utilise pas corosync mais ça fonctionne pareil). Si on change une Key Value sur un serveur, les autres se mettent à jour automatiquement.&lt;/p&gt;
+&lt;h2 id=&#34;nomad&#34;&gt;Nomad&lt;/h2&gt;
+&lt;p&gt;Nomad est un orchestrateur. C&amp;rsquo;est à dire qu&amp;rsquo;il va gérer les services : si on lui demande n services up, il va s&amp;rsquo;arranger pour avoir toujours ces n services up. Lorsqu&amp;rsquo;on va deploy une maj, il va down, mettre à jour et up les services chacun leur tour. Il va effectuer aussi des &lt;code&gt;check&lt;/code&gt; que l&amp;rsquo;on aura configuré pour savoir si notre service est &lt;code&gt;healthy&lt;/code&gt; ou non&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Nomad va parler à Consul et lui dire &amp;ldquo;j&amp;rsquo;ai tels services qui marchent, voici leur IP, leur port, &amp;hellip;&amp;rdquo;.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Admettons que nous ayons une image Docker simple contenant un nginx et un index.html. Nous voulons 3 serveurs qui tournent et afficher ces serveurs en tant que service dans Consul. Voici un exemple de configuration :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;web.conf&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code class=&#34;language-nomad&#34; data-lang=&#34;nomad&#34;&gt;job &amp;quot;web&amp;quot; {
+  datacenters = [&amp;quot;dc1&amp;quot;]
+  type = &amp;quot;service&amp;quot;
+
+  update {
+    max_parallel = 1
+    min_healthy_time = &amp;quot;10s&amp;quot;
+    healthy_deadline = &amp;quot;3m&amp;quot;
+    progress_deadline = &amp;quot;10m&amp;quot;
+    auto_revert = false
+    canary = 0
+  }
+  migrate {
+    max_parallel = 1
+    health_check = &amp;quot;checks&amp;quot;
+    min_healthy_time = &amp;quot;10s&amp;quot;
+    healthy_deadline = &amp;quot;5m&amp;quot;
+  }
+  
+  group &amp;quot;cache&amp;quot; {
+    # nombre de serveurs à lancer
+    count = 3
+
+    # port du serv nginx dans le container
+    network {
+      port &amp;quot;serv&amp;quot; {
+        to = 80
+      }
+    }
+
+    service {
+      name = &amp;quot;web-cache&amp;quot;
+      tags = [&amp;quot;global&amp;quot;, &amp;quot;cache&amp;quot;]
+      port = &amp;quot;serv&amp;quot;
+
+      # check à faire pour vérifier que le serv est healthy. ici on check la co tcp
+      check {
+        type     = &amp;quot;tcp&amp;quot;
+        interval = &amp;quot;10s&amp;quot;
+        timeout  = &amp;quot;2s&amp;quot;
+      }
+
+    }
+
+    restart {
+      attempts = 2
+      interval = &amp;quot;30m&amp;quot;
+
+      delay = &amp;quot;15s&amp;quot;
+
+      mode = &amp;quot;fail&amp;quot;
+    }
+
+    ephemeral_disk {
+      size = 300
+    }
+
+    # lancement d&#39;un container
+    task &amp;quot;nginx&amp;quot; {
+      driver = &amp;quot;docker&amp;quot;
+
+      config {
+        # image docker citée plus haut
+        image = &amp;quot;web-1:v1&amp;quot;
+
+        ports = [&amp;quot;serv&amp;quot;]
+      }
+
+      resources {
+        cpu    = 500 # 500 MHz
+        memory = 256 # 256MB
+      }
+
+    }
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;server.conf&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code&gt;data_dir = &amp;quot;/var/lib/nomad&amp;quot;
+
+bind_addr = &amp;quot;0.0.0.0&amp;quot;
+
+advertise {
+    # adresse publique
+    http = &amp;quot;XX.XX.XX.XX&amp;quot;
+}
+
+server {
+    enabled = true
+    bootstrap_expect = 1
+}
+
+client {
+    enabled = true
+    # interface publique
+    network_interface = &amp;quot;ens18&amp;quot;
+}
+
+consul {
+    # adresse où se trouve consul
+    address = &amp;quot;XX.XX.XX.XX:8500&amp;quot;
+}
+
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;em&gt;(XX.XX.XX.XX fait référence à l&amp;rsquo;IP publique)&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Il ne reste plus qu&amp;rsquo;à lancer l&amp;rsquo;agent nomad, de la même manière que Consul, et de lancer le job que nous avons configuré.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ nomad agent -dev-connect -config=server.conf -log-level INFO
+$ nomad job run web.nomad
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;On obtient bien nos 3 serveurs nginx qui tournent :&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ nomad status
+ID   Type     Priority  Status   Submit Date
+web  service  50        running  2021-05-25T11:00:38+02:00
+
+$ docker ps
+CONTAINER ID   IMAGE      COMMAND                  CREATED       STATUS       PORTS                                                  NAMES
+0a60baada3f7   web-1:v1   &amp;quot;/docker-entrypoint.…&amp;quot;   3 hours ago   Up 3 hours   XX.XX.XX.XX:28546-&amp;gt;80/tcp, XX.XX.XX.XX:28546-&amp;gt;80/udp   nginx-6a9237b6-eae4-22e0-fbf9-b643388af041
+876db102ec67   web-1:v1   &amp;quot;/docker-entrypoint.…&amp;quot;   3 hours ago   Up 3 hours   XX.XX.XX.XX:27303-&amp;gt;80/tcp, XX.XX.XX.XX:27303-&amp;gt;80/udp   nginx-e914eb29-dd02-afe1-c8b5-10bfcd677aa5
+032903bba6c2   web-1:v1   &amp;quot;/docker-entrypoint.…&amp;quot;   3 hours ago   Up 3 hours   XX.XX.XX.XX:22854-&amp;gt;80/tcp, XX.XX.XX.XX:22854-&amp;gt;80/udp   nginx-3ef4fd44-a394-958a-0db7-84f8fdbb554c
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Si tout s&amp;rsquo;est bien passé, on obtient alors nos services dans l&amp;rsquo;interface de Consul :&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/UJrgZBc.png&#34; alt=&#34;consul services&#34;  /&gt;&lt;/p&gt;
+&lt;h2 id=&#34;intégration-de-haproxy-pour-faire-du-load-balancing&#34;&gt;Intégration de HAProxy pour faire du load balancing&lt;/h2&gt;
+&lt;p&gt;Maintenant que nos services sont enregistrés dans Consul, on peut les récupérer avec HAProxy pour faire du LB. Configurons notre HAProxy de la sorte :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;/etc/haproxy/haproxy.cfg&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code&gt;global
+	# Config de base que je n&#39;ai pas modifié. Voir la doc pour plus d&#39;info
+	log /dev/log	local0
+	log /dev/log	local1 notice
+	chroot /var/lib/haproxy
+	stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
+	stats timeout 30s
+	user haproxy
+	group haproxy
+	daemon
+
+	# Default SSL material locations
+	ca-base /etc/ssl/certs
+	crt-base /etc/ssl/private
+
+defaults
+	log	global
+	mode	http
+	option	httplog
+	option	dontlognull
+        timeout connect 5000
+        timeout client  50000
+        timeout server  50000
+	errorfile 400 /etc/haproxy/errors/400.http
+	errorfile 403 /etc/haproxy/errors/403.http
+	errorfile 408 /etc/haproxy/errors/408.http
+	errorfile 500 /etc/haproxy/errors/500.http
+	errorfile 502 /etc/haproxy/errors/502.http
+	errorfile 503 /etc/haproxy/errors/503.http
+	errorfile 504 /etc/haproxy/errors/504.http
+
+frontend stats
+	# on met en place un front qui affichera les stats de HAProxy sur le port 1936 (voir la doc)
+	bind :1936
+	stats uri /
+	stats show-legends
+	no log
+
+frontend www
+	# notre frontend sera sur le port 8889 et aura la backend www_back
+	bind :8889
+	default_backend www_back
+
+backend www_back
+	# on utilise l&#39;algo roundrobin pour le LB
+	balance roundrobin
+	# on utilise une template de serveur qu&#39;on pioche directement dans consul
+	# la syntaxe est _SERVICE._TAG.service.consul
+	server-template web 3 _web-cache._cache.service.consul resolvers consul resolve-opts allow-dup-ip resolve-prefer ipv4 check
+	# ces lignes sont optionnelles, c&#39;est pour que j&#39;affiche dans le response header l&#39;ip et le nom du backend utilisé
+	http-response set-header backend-ip %si:%sp
+	http-response set-header backend-name %s
+
+resolvers consul
+	# l&#39;adresse du serveur consul. Attention le port est 8600
+	nameserver consul 10.41.7.129:8600
+	accepted_payload_size 8192
+	hold valid 5s
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;On reload notre HAProxy&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;systemctl reload haproxy
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Si tout s&amp;rsquo;est bien passé on a sur &lt;code&gt;XX.XX.XX.XX:8889&lt;/code&gt; un de nos serveur nginx. On peut savoir lequel en regardant le response head (&lt;code&gt;F12&lt;/code&gt;). De plus, on peut avoir une vue de nos serveurs sur le lien des stats (XX.XX.XX.XX:1936 que nous avons config) :&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/WDpnZCl.png&#34; alt=&#34;haproxy dash&#34;  /&gt;&lt;/p&gt;
+&lt;p&gt;Et voilà notre petite infra est terminée !
+&lt;em&gt;that&amp;rsquo;s all folks&lt;/em&gt;&lt;/p&gt;
 </description>
         </item>
         <item>

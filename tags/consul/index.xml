@@ -13,8 +13,8 @@
       <pubDate>Tue, 25 May 2021 00:00:00 +0000</pubDate>
       
       <guid>https://borisjacquot.github.io/p/stack-hashicorp/</guid>
-      <description>Stack HashiCorp  HashiCorp est une entreprise de software base ç San Francisco en Californie. Cette entreprise propose une suite de logiciels open-source orientés service. Deux d&amp;rsquo;entre eux sont Consul et Nomad. &amp;raquo; plus d&amp;rsquo;info
- Consul </description>
+      <description>Stack HashiCorp  HashiCorp est une entreprise de software base à San Francisco en Californie. Cette entreprise propose une suite de logiciels open-source orientés service. Deux d&amp;rsquo;entre eux sont Consul et Nomad. &amp;raquo; plus d&amp;rsquo;info
+ Consul Consul est un soft permettant de faire du service discovery. C&amp;rsquo;est à dire faire l&amp;rsquo;inventaire des services disponibles dans un cluster et récupérer les informations (up, down, &amp;hellip;). Il est également possible de set des key values qui seront réutilisées par les services (comme Nomad par exemple).</description>
     </item>
     
   </channel>
